@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Parking Lot Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <div class="brand">
+        <div class="brand-badge"></div>
+        <div>Parking Lot Dashboard</div>
+      </div>
+      <div class="nav-actions">
+        <a class="btn" id="btnDashboard">Dashboard</a>
+        <a class="btn btn-accent" id="btnControlPanel" href="controlpanel.html">Control Panel</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div id="dashboard" class="panel_inactive">
+
+
+    </div>
+
+    <div class="container">
+      <!-- Dashboard -->
+      <div id="dashboard" class="panel_active">
+        <div class="cards">
+          <h2>Overview</h2>
+          <div class="subtle">Live status of the simulated parking lot.</div>
+          <div class="summary">
+            <div class="stat">
+              <div class="num" id="totalSpaces">1300</div>
+              <div>
+                <div>Total Spaces</div>
+                <!--<div class="subtle">26 rows × 50 spots</div> -->
+              </div>
+            </div>
+            <div class="stat">
+              <div class="num" id="occupiedSpaces">0</div>
+              <div>
+                <div>Currently Occupied</div>
+                <!-- <div class="subtle">The simulation updated.</div> -->
+              </div>
+            </div>
+              <div class="chip">
+                <span><!--Row Y:--> Handicap<br><strong id="yUsed">0</strong>/<span id="yTotal">50</span></span>
+                
+              </div>
+              <div class="chip">
+                <span><!--Row Z:--> EV Chargers<br><strong id="zUsed">0</strong>/<span id="zTotal">50</span></span>
+                
+              </div>
+            </div>
+          </div>
+
+        <br>
+
+        <div class="card">
+          <h2>Row Breakdown</h2>
+          <div class="subtle">Each row contains 50 spaces. Occupancy is simulated below.</div>
+          <table class="table" id="rowTable">
+            <thead>
+              <tr>
+                <th>Row</th>
+                <th>Total</th>
+                <th>Occupied</th>
+                <th>Vacant</th>
+                <th>Utilization</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Filled by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <br>
+
+        <div class="card">
+          <h2>Special Sections</h2>
+          <div class="highlight">
+            <div class="tile">
+              <h3>Row Y — Handicap Accessible</h3>
+              <span class="badge warn">Reserved</span>
+              <p class="subtle">All 50 spaces in Row Y are designated as handicap-accessible.</p>
+              <p><strong>Occupied:</strong> <span id="yOcc">0</span> / 50</p>
+            </div>
+            <div class="tile">
+              <h3>Row Z — EV Chargers</h3>
+              <span class="badge">EV Charging</span>
+              <p class="subtle">All 50 spaces in Row Z are equipped with EV chargers.</p>
+              <p><strong>Occupied:</strong> <span id="zOcc">0</span> / 50</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Control Panel -->
+      <div id="controlPanel" class="panel">
+        <div class="card">
+          <h2>Control Panel</h2>
+          <div class="subtle">Configure announcements, data storage, and simulation rules.</div>
+        </div>
+
+        <div class="section">
+          <h3>Announcement Message</h3>
+          <label for="announcement">Message shown on the dashboard</label>
+          <input type="text" id="announcement" placeholder="e.g., Lot closes at 10 PM" />
+          <div style="margin-top: 8px;">
+            <button class="btn btn-accent" id="saveAnnouncement">Save Announcement</button>
+            <span class="subtle" id="announceStatus" style="margin-left: 10px;"></span>
+          </div>
+        </div>
+
+
+        <div class="section">
+          <h3>Database SQL</h3>
+          <div class="subtle">Edit the SQL schema or seed data that stores parking information. This is a placeholder;
+            wire it to your backend.</div>
+          <textarea id="sqlEditor" spellcheck="false">-- Example schema
+CREATE TABLE parking_rows (
+  row CHAR(1) PRIMARY KEY,    -- A-Z
+  total INTEGER NOT NULL,     -- always 50
+  occupied INTEGER NOT NULL   -- simulated
+);
+
+INSERT INTO parking_rows (row, total, occupied) VALUES
+('A', 50, 32), ('B', 50, 24), ('C', 50, 18), ('D', 50, 40),
+('Y', 50, 21), -- handicap
+('Z', 50, 35); -- EV chargers
+</textarea>
+          <div style="margin-top: 8px;">
+            <button class="btn" id="runSQL">Save SQL</button>
+            <span class="subtle" id="sqlStatus" style="margin-left: 10px;"></span>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Simulation Settings</h3>
+          <div class="row">
+            <div>
+              <label for="simInterval">Update Interval (seconds)</label>
+              <input type="text" id="simInterval" value="5" />
+            </div>
+            <div>
+              <label for="simVolatility">Volatility (0-1)</label>
+              <input type="text" id="simVolatility" value="0.3" />
+            </div>
+          </div>
+          <div style="margin-top: 8px;">
+            <button class="btn" id="applySim">Apply Settings</button>
+            <span class="subtle" id="simStatus" style="margin-left: 10px;"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        Demo UI for a simulated parking lot. Replace sample data with real database/API calls.
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
