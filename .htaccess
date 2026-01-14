@@ -1,0 +1,41 @@
+# SpotTracker - Apache Configuration
+# This file enables proper handling of HTTP methods for the API
+
+# Prevent directory listing
+Options -Indexes
+
+# Allow all HTTP methods
+<IfModule mod_authz_core.c>
+    # Apache 2.4+ syntax
+    <FilesMatch "\.php$">
+        Require all granted
+    </FilesMatch>
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    # Apache 2.2 compatibility
+    <FilesMatch "\.php$">
+        Order allow,deny
+        Allow from all
+    </FilesMatch>
+</IfModule>
+
+# Enable mod_rewrite
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /spottracker/
+</IfModule>
+
+# Set PHP handler
+AddType application/x-httpd-php .php
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+</IfModule>
+
+# Enable compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>

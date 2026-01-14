@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SpotTracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 80px auto;
+            padding: 40px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .login-title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text);
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text);
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        }
+        
+        .form-group input::placeholder {
+            color: var(--muted);
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+        }
+        
+        .btn-login:hover {
+            background: #2563eb;
+        }
+        
+        .btn-login:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-login:disabled {
+            background: var(--muted);
+            cursor: not-allowed;
+        }
+        
+        .alert {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .alert.success {
+            background: rgba(52, 211, 153, 0.1);
+            border: 1px solid #34d399;
+            color: #34d399;
+        }
+        
+        .alert.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #fecaca;
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-inner">
+            <div class="brand">
+                <div class="brand-badge"></div>
+                <div>SpotTracker</div>
+            </div>
+            <div class="nav-actions">
+                <a class="btn" href="index.html">Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Form -->
+    <div class="login-container">
+        <div class="login-title">Login</div>
+        
+        <div id="alertMessage"></div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            
+            <button type="submit" class="btn-login" id="loginBtn">Login</button>
+        </form>
+        
+        <div class="login-footer">
+            <p>Default credentials: username: <strong>admin</strong>, password: <strong>admin123</strong></p>
+           <!---- <p style="margin-top: 12px; font-size: 11px; color: var(--muted);">
+                For setup help, see <strong>SETUP_XAMPP.md</strong>>
+            </p>
+        </div>
+    </div>-->
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const alertMessage = document.getElementById('alertMessage');
+        
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
+            alertMessage.innerHTML = '';
+            
+            try {
+                const formData = new FormData();
+                formData.append('username', username);
+                formData.append('password', password);
+                
+                const response = await fetch('api/?action=login', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                console.log('Response Status:', response.status);
+                console.log('Response OK:', response.ok);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response Data:', data);
+                
+                if (data.success) {
+                    showAlert('Login successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = data.redirect || 'controlpanel.html';
+                    }, 1500);
+                } else {
+                    showAlert(data.message || 'Login failed. Please try again.', 'error');
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Login';
+                }
+            } catch (error) {
+                console.error('Login Error:', error);
+                
+                if (error.message.includes('405')) {
+                    showAlert('Server error (405): API endpoint not accessible. Check Apache configuration. See FIX_405_ERROR.md for help.', 'error');
+                } else if (error.message.includes('404')) {
+                    showAlert('Server error (404): Login API not found. Check file paths.', 'error');
+                } else {
+                    showAlert(`Error: ${error.message}. Check browser console (F12) for details.`, 'error');
+                }
+                
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login';
+            }
+        });
+        
+        function showAlert(message, type) {
+            alertMessage.innerHTML = `<div class="alert ${type}">${message}</div>`;
+        }
+    </script>
+</body>
+</html>

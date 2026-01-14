@@ -4,83 +4,343 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Panel</title>
+    <title>Control Panel - SpotTracker</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .panel-header {
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .section h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text);
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text);
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-accent {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-accent:hover {
+            background: #2563eb;
+        }
+        
+        .btn-primary {
+            background: var(--accent2);
+            color: #000;
+        }
+        
+        .btn-primary:hover {
+            background: #10b981;
+        }
+        
+        .status-message {
+            display: inline-block;
+            margin-left: 16px;
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+        
+        .status-message.success {
+            background: rgba(52, 211, 153, 0.2);
+            color: #34d399;
+        }
+        
+        .status-message.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fecaca;
+        }
+        
+        .subtle {
+            color: var(--muted);
+            font-size: 14px;
+            margin-top: 8px;
+        }
+    </style>
 </head>
 
 <body>
-
     <nav class="navbar">
         <div class="nav-inner">
             <div class="brand">
                 <div class="brand-badge"></div>
-                <div>Parking Lot Dashboard</div>
+                <div>SpotTracker</div>
             </div>
             <div class="nav-actions">
-                <a class="btn" id="btnDashboard" href="index.html">Dashboard</button>
-                    <a class="btn btn-accent" id="btnControlPanel" href="controlpanel.html">Control Panel</a>
+                <a class="btn" href="index.html">Dashboard</a>
+                <a class="btn btn-accent" id="logoutBtn">Log out</a>
             </div>
         </div>
     </nav>
 
-        <div class="container">
-            <!-- Control Panel -->
+    <div class="container">
+        <div class="panel-header">
             <h2>Control Panel</h2>
-        <div class="subtle">Configure announcements, data storage, and simulation rules.</div>
-      </div>
-
-      <div class="section">
-        <h3>Announcement Message</h3>
-        <label for="announcement">Message shown on the dashboard</label>
-        <input type="text" id="announcement" placeholder="e.g., Lot closes at 10 PM" />
-        <div style="margin-top: 8px;">
-          <button class="btn btn-accent" id="saveAnnouncement">Save Announcement</button>
-          <span class="subtle" id="announceStatus" style="margin-left: 10px;"></span>
+            <div class="subtle">Manage announcements, settings, and parking data.</div>
         </div>
-      </div>
 
-       
-      <div class="section">
-        <h3>Database SQL</h3>
-        <div class="subtle">Edit the SQL schema or seed data that stores parking information. This is a placeholder; wire it to your backend.</div>
-        <textarea id="sqlEditor" spellcheck="false">-- Example schema
-CREATE TABLE parking_rows (
-  row CHAR(1) PRIMARY KEY,    -- A-Z
-  total INTEGER NOT NULL,     -- always 50
-  occupied INTEGER NOT NULL   -- simulated
-);
+        <!-- Announcement Section -->
+        <div class="section">
+            <h3>Announcement Message</h3>
+            <label for="announcement">Message shown on the dashboard</label>
+            <input type="text" id="announcement" placeholder="e.g., Lot closes at 10 PM" />
+            <div style="margin-top: 12px;">
+                <button class="btn btn-accent" id="saveAnnouncement">Save Announcement</button>
+                <span class="status-message" id="announceStatus"></span>
+            </div>
+        </div>
 
-INSERT INTO parking_rows (row, total, occupied) VALUES
-('A', 50, 32), ('B', 50, 24), ('C', 50, 18), ('D', 50, 40),
-('Y', 50, 21), -- handicap
-('Z', 50, 35); -- EV chargers
-</textarea>
-        <div style="margin-top: 8px;">
-          <button class="btn" id="runSQL">Save SQL</button>
-          <span class="subtle" id="sqlStatus" style="margin-left: 10px;"></span>
+        <!-- Simulation Settings Section -->
+        <div class="section">
+            <h3>Simulation Settings</h3>
+            <div class="row">
+                <div class="form-group">
+                    <label for="simInterval">Update Interval (seconds)</label>
+                    <input type="number" id="simInterval" min="1" max="60" value="5" />
+                </div>
+                <div class="form-group">
+                    <label for="simVolatility">Volatility (0-1)</label>
+                    <input type="number" id="simVolatility" min="0" max="1" step="0.1" value="0.3" />
+                </div>
+            </div>
+            <div style="margin-top: 12px;">
+                <button class="btn btn-accent" id="applySim">Apply Settings</button>
+                <span class="status-message" id="simStatus"></span>
+            </div>
         </div>
-      </div>
 
-      <div class="section">
-        <h3>Simulation Settings</h3>
-        <div class="row">
-          <div>
-            <label for="simInterval">Update Interval (seconds)</label>
-            <input type="text" id="simInterval" value="5" />
-          </div>
-          <div>
-            <label for="simVolatility">Volatility (0-1)</label>
-            <input type="text" id="simVolatility" value="0.3" />
-          </div>
+        <!-- Parking Data Section -->
+        <div class="section">
+            <h3>Parking Rows Status</h3>
+            <div class="subtle" style="margin-bottom: 20px;">Live view of parking data from the database</div>
+            <table id="rowTable" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--border);">
+                        <th style="text-align: left; padding: 12px; color: var(--muted);">Row</th>
+                        <th style="text-align: right; padding: 12px; color: var(--muted);">Total</th>
+                        <th style="text-align: right; padding: 12px; color: var(--muted);">Occupied</th>
+                        <th style="text-align: right; padding: 12px; color: var(--muted);">Available</th>
+                        <th style="text-align: right; padding: 12px; color: var(--muted);">Utilization</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
         </div>
-        <div style="margin-top: 8px;">
-          <button class="btn" id="applySim">Apply Settings</button>
-          <span class="subtle" id="simStatus" style="margin-left: 10px;"></span>
+
+        <!-- Database Info Section -->
+        <div class="section">
+            <h3>Database Information</h3>
+            <div class="subtle">Connected to SpotTracker database</div>
+            <div style="margin-top: 16px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 6px;">
+                <p style="margin: 0 0 8px 0;"><strong>Status:</strong> <span id="dbStatus" style="color: #34d399;">Connected</span></p>
+                <p style="margin: 0 0 8px 0;"><strong>Last Sync:</strong> <span id="lastSync">Just now</span></p>
+                <p style="margin: 0;"><strong>User:</strong> <span id="currentUser">-</span></p>
+            </div>
         </div>
-      </div>
     </div>
 
-            <script src="script.js"></script>
+    <script>
+        // Check authentication
+        async function checkAuth() {
+            try {
+                const response = await fetch('api/?action=auth_check');
+                const data = await response.json();
+                
+                if (!data.authenticated) {
+                    window.location.href = 'login.html';
+                } else {
+                    document.getElementById('currentUser').textContent = data.username;
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = 'login.html';
+            }
+        }
+        
+        // Load parking data from database
+        async function loadParkingData() {
+            try {
+                const response = await fetch('api/?action=get_rows');
+                const data = await response.json();
+                
+                if (data.success && data.rows) {
+                    const tbody = document.getElementById('tableBody');
+                    tbody.innerHTML = '';
+                    
+                    data.rows.forEach(row => {
+                        const available = row.total - row.occupied;
+                        const utilization = Math.round((row.occupied / row.total) * 100);
+                        
+                        const tr = document.createElement('tr');
+                        tr.style.borderBottom = '1px solid var(--border)';
+                        tr.innerHTML = `
+                            <td style="padding: 12px; font-weight: 600;">${row.row}${row.type !== 'standard' ? ` <span style="font-size: 12px; background: var(--chip); padding: 2px 8px; border-radius: 3px; margin-left: 8px;">${row.type}</span>` : ''}</td>
+                            <td style="padding: 12px; text-align: right;">${row.total}</td>
+                            <td style="padding: 12px; text-align: right; color: #ef4444;">${row.occupied}</td>
+                            <td style="padding: 12px; text-align: right; color: #34d399;">${available}</td>
+                            <td style="padding: 12px; text-align: right;">
+                                <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
+                                    <div style="width: 60px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+                                        <div style="width: ${utilization}%; height: 100%; background: var(--accent); transition: width 0.3s;"></div>
+                                    </div>
+                                    <span style="font-size: 13px; color: var(--muted);">${utilization}%</span>
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                    
+                    document.getElementById('lastSync').textContent = new Date().toLocaleTimeString();
+                }
+            } catch (error) {
+                console.error('Failed to load parking data:', error);
+            }
+        }
+        
+        // Save announcement
+        document.getElementById('saveAnnouncement').addEventListener('click', async () => {
+            const message = document.getElementById('announcement').value;
+            if (!message.trim()) {
+                showStatus('announceStatus', 'Please enter a message', 'error');
+                return;
+            }
+            
+            try {
+                const formData = new FormData();
+                formData.append('message', message);
+                
+                const response = await fetch('api/?action=save_announcement', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showStatus('announceStatus', 'Announcement saved successfully!', 'success');
+                } else {
+                    showStatus('announceStatus', data.message || 'Failed to save announcement', 'error');
+                }
+            } catch (error) {
+                showStatus('announceStatus', 'Error saving announcement', 'error');
+            }
+        });
+        
+        // Apply simulation settings
+        document.getElementById('applySim').addEventListener('click', async () => {
+            const interval = document.getElementById('simInterval').value;
+            const volatility = document.getElementById('simVolatility').value;
+            
+            try {
+                const formData = new FormData();
+                formData.append('interval', interval);
+                formData.append('volatility', volatility);
+                
+                const response = await fetch('api/?action=save_simulation', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showStatus('simStatus', 'Settings saved successfully!', 'success');
+                } else {
+                    showStatus('simStatus', data.message || 'Failed to save settings', 'error');
+                }
+            } catch (error) {
+                showStatus('simStatus', 'Error saving settings', 'error');
+            }
+        });
+        
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await fetch('api/?action=logout');
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Logout failed:', error);
+                window.location.href = 'login.html';
+            }
+        });
+        
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status-message ${type}`;
+            setTimeout(() => {
+                element.textContent = '';
+                element.className = 'status-message';
+            }, 3000);
+        }
+        
+        // Initialize
+        checkAuth();
+        loadParkingData();
+        setInterval(loadParkingData, 5000); // Refresh every 5 seconds
+    </script>
 </body>
 
 </html>
